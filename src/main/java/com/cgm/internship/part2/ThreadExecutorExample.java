@@ -11,7 +11,7 @@ public class ThreadExecutorExample implements Callable<Double> {
     }
 
     @Override
-    public Double call() throws Exception {
+    public Double call() {
         double sum = 0.0;
         try {
             File file = new File(pathName);
