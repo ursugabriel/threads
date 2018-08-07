@@ -1,25 +1,23 @@
-package com.cgm.internship.part2;
+package com.cgm.internship.part2.completablefuture;
 
 import java.io.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
-public class ThreadExecutorExample implements Callable<Double> {
+public class ThreadExample implements Supplier<Double> {
     private String pathName;
-    private int nameThread;
 
-    public ThreadExecutorExample(int nameThread, String pathName) {
-        this.nameThread = nameThread;
+    public ThreadExample(String pathName) {
         this.pathName = pathName;
     }
 
     @Override
-    public Double call() {
+    public Double get() {
         double sum = 0.0;
         try {
+            System.out.println(Thread.currentThread().getName()+" started!");
             File file = new File(pathName);
             file.createNewFile();
-
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
                 String line=bufferedReader.readLine();
                 while (line!=null){
@@ -29,21 +27,22 @@ public class ThreadExecutorExample implements Callable<Double> {
                 BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(pathName, true));
                 bufferedWriter.write("");
                 bufferedWriter.write("Total sum per file: "+Math.round(sum * 100.0) / 100.0);
+                bufferedWriter.write("");
                 bufferedWriter.flush();
                 bufferedWriter.close();
-
-
             } catch (FileNotFoundException e) {
                 System.out.println("File not found!");
             } catch (IOException e) {
                 System.out.println("Writing error!");
             }
+            TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedIOException ex) {
             ex.printStackTrace();
         } catch (IOException io) {
             io.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        System.out.println(Thread.currentThread().getName() +" finished!");
         return Math.round(sum * 100.0) / 100.0;
     }
 }

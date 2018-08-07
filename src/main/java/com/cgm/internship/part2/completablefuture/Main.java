@@ -1,4 +1,4 @@
-package com.cgm.internship.part2.optional;
+package com.cgm.internship.part2.completablefuture;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,11 +18,15 @@ public class Main {
                 allFuturesSet.toArray(new CompletableFuture[ allFuturesSet.size()]));
 
         allFutures.whenComplete((aDouble, throwable) -> System.out.println("All tasks completed!"));
+        System.out.println("All tasks completed without when complete");
         CompletableFuture<List<Double>> allFutureResults =
                 allFutures.thenApply(v-> allFuturesSet.stream().map(allFuturesResult->allFuturesResult.join()).collect(Collectors.toList()));
+        System.out.println("All tasks completed without when complete2");
 
         CompletableFuture<Double> sumOfSales =
                 allFutureResults.thenApply(futureList-> futureList.stream().mapToDouble(Double::intValue).sum());
+        System.out.println("All tasks completed without when complete3");
+
         try {
             System.out.println(Math.round(sumOfSales.get() * 100.0) / 100.0);
         } catch (InterruptedException e) {

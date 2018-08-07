@@ -1,49 +1,51 @@
-package com.cgm.internship.part2.optional;
+package com.cgm.internship.part2.latch;
 
 import java.io.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
-public class ThreadExample implements Supplier<Double> {
+public class ThreadExecutorExample implements Runnable {
     private String pathName;
+    private CountDownLatch latch;
+    private int nameThread;
+    static double SUM =0.0;
 
-    public ThreadExample(String pathName) {
+    public ThreadExecutorExample(int nameThread, String pathName, CountDownLatch latch) {
+        this.nameThread = nameThread;
         this.pathName = pathName;
+        this.latch = latch;
     }
 
     @Override
-    public Double get() {
-        System.out.println("Started!");
-        double sum = 0.0;
+    public void run() {
         try {
             File file = new File(pathName);
             file.createNewFile();
+
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
                 String line=bufferedReader.readLine();
                 while (line!=null){
-                    sum += Double.parseDouble(line.substring(line.lastIndexOf(' '),line.length())) * Double.parseDouble(line.substring(line.lastIndexOf(' '),line.length()-1));
+                    SUM += Double.parseDouble(line.substring(line.lastIndexOf(' '),line.length())) * Double.parseDouble(line.substring(line.lastIndexOf(' '),line.length()-1));
                     line=bufferedReader.readLine();
                 }
                 BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(pathName, true));
                 bufferedWriter.write("");
-                bufferedWriter.write("Total sum per file: "+Math.round(sum * 100.0) / 100.0);
-                bufferedWriter.write("");
+                bufferedWriter.write("Total sum per file: "+Math.round(SUM * 100.0) / 100.0);
                 bufferedWriter.flush();
                 bufferedWriter.close();
+
+
             } catch (FileNotFoundException e) {
                 System.out.println("File not found!");
             } catch (IOException e) {
                 System.out.println("Writing error!");
             }
-            TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedIOException ex) {
             ex.printStackTrace();
         } catch (IOException io) {
             io.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
-        return Math.round(sum * 100.0) / 100.0;
+        System.out.println(Thread.currentThread().getName() +" finished!");
+        latch.countDown();
     }
 }
